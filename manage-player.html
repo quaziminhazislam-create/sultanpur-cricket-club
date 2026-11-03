@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Players | SCC Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="admin-page">
+
+    <div class="admin-container">
+
+        <div class="admin-header">
+            <div>
+                <p class="admin-label">SCC ADMIN PANEL</p>
+                <h1>Manage Players</h1>
+                <p>Add, edit and remove Sultanpur Cricket Club players.</p>
+            </div>
+
+            <button id="logoutBtn" class="admin-logout">
+                Logout
+            </button>
+        </div>
+
+        <div class="player-management-card">
+
+            <h2 id="formTitle">Add New Player</h2>
+
+            <form id="playerForm">
+
+                <input type="hidden" id="playerId">
+
+                <div class="admin-form-grid">
+
+                    <div class="admin-form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="full_name" required>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Jersey Number</label>
+                        <input type="text" id="jersey_number">
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Playing Role</label>
+                        <select id="playing_role">
+                            <option value="">Select Role</option>
+                            <option value="Batsman">Batsman</option>
+                            <option value="Bowler">Bowler</option>
+                            <option value="All-Rounder">All-Rounder</option>
+                            <option value="Wicket-Keeper">Wicket-Keeper</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Batting Hand</label>
+                        <select id="batting_hand">
+                            <option value="">Select</option>
+                            <option value="Right Hand">Right Hand</option>
+                            <option value="Left Hand">Left Hand</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Bowling Hand</label>
+                        <select id="bowling_hand">
+                            <option value="">Select</option>
+                            <option value="Right Hand">Right Hand</option>
+                            <option value="Left Hand">Left Hand</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Batting Style</label>
+                        <input type="text" id="batting_style"
+                               placeholder="e.g. Right-hand batsman">
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Bowling Style</label>
+                        <input type="text" id="bowling_style"
+                               placeholder="e.g. Right-arm medium">
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Profile Photo URL</label>
+                        <input type="text" id="profile_photo"
+                               placeholder="Photo URL">
+                    </div>
+
+                    <div class="admin-form-group full-width">
+                        <label>Player Bio</label>
+                        <textarea id="bio" rows="4"
+                                  placeholder="Write a short player bio..."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="admin-form-actions">
+
+                    <button type="submit" class="admin-primary-btn">
+                        Save Player
+                    </button>
+
+                    <button type="button" id="cancelEditBtn"
+                            class="admin-secondary-btn"
+                            style="display:none;">
+                        Cancel Edit
+                    </button>
+
+                </div>
+
+                <p id="playerMessage"></p>
+
+            </form>
+
+        </div>
+
+
+        <div class="player-management-card">
+
+            <div class="players-list-header">
+                <div>
+                    <h2>Current Players</h2>
+                    <p>Players stored in the SCC database.</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+                        <tr>
+                            <th>Jersey</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Batting</th>
+                            <th>Bowling</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="playersBody">
+                        <tr>
+                            <td colspan="6">
+                                Loading players...
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!--Supabase-->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="supabase.js"></script>
+
+
+    <script>
+
+        const playerForm = document.getElementById("playerForm");
+        const playersBody = document.getElementById("playersBody");
+        const playerMessage = document.getElementById("playerMessage");
+
+        const playerId = document.getElementById("playerId");
+
+        const fullName = document.getElementById("full_name");
+        const jerseyNumber = document.getElementById("jersey_number");
+        const playingRole = document.getElementById("playing_role");
+        const battingHand = document.getElementById("batting_hand");
+        const bowlingHand = document.getElementById("bowling_hand");
+        const battingStyle = document.getElementById("batting_style");
+        const bowlingStyle = document.getElementById("bowling_style");
+        const profilePhoto = document.getElementById("profile_photo");
+        const bio = document.getElementById("bio");
+
+        const formTitle = document.getElementById("formTitle");
+        const cancelEditBtn = document.getElementById("cancelEditBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+
+        // Check admin login
+
+        async function checkAdmin() {
+
+            const { data: { user } } =
+                await sccSupabase.auth.getUser();
+
+            if (!user) {
+                window.location.href = "admin.html";
+                return;
+            }
+
+            const { data, error } = await sccSupabase
+                .from("admin_users")
+                .select("user_id, role")
+                .eq("user_id", user.id)
+                .eq("role", "admin")
+                .maybeSingle();
+
+            if (error || !data) {
+                await sccSupabase.auth.signOut();
+                window.location.href = "admin.html";
+            }
+        }
+
+
+        // Load players
+
+        async function loadPlayers() {
+
+            playersBody.innerHTML = `
+                <tr>
+                    <td colspan="6">Loading players...</td>
+                </tr>
+            `;
+
+            const { data, error } = await sccSupabase
+                .from("players")
+                .select("*")
+                .order("jersey_number", { ascending: true });
+
+            if (error) {
+
+                playersBody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            Failed to load players.
+                        </td>
+                    </tr>
+                `;
+
+                console.error(error);
+                return;
+            }
+
+            if (!data || data.length === 0) {
+
+                playersBody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            No players added yet.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            playersBody.innerHTML = "";
+
+            data.forEach(player => {
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+
+                    <td>${player.jersey_number || "-"}</td>
+
+                    <td>
+                        <strong>
+                            ${player.full_name}
+                        </strong>
+                    </td>
+
+                    <td>${player.playing_role || "-"}</td>
+
+                    <td>${player.batting_hand || "-"}</td>
+
+                    <td>${player.bowling_hand || "-"}</td>
+
+                    <td>
+
+                        <button
+                            class="table-edit-btn"
+                            onclick="editPlayer('${player.id}')">
+                            Edit
+                        </button>
+
+                        <button
+                            class="table-delete-btn"
+                            onclick="deletePlayer('${player.id}')">
+                            Delete
+                        </button>
+
+                    </td>
+
+                `;
+
+                playersBody.appendChild(row);
+
+            });
+
+        }
+
+
+        // Add / Update player
+
+        playerForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            playerMessage.textContent = "Saving player...";
+
+            const playerData = {
+
+                full_name: fullName.value.trim(),
+
+                jersey_number:
+                    jerseyNumber.value.trim() || null,
+
+                playing_role:
+                    playingRole.value || null,
+
+                batting_hand:
+                    battingHand.value || null,
+
+                bowling_hand:
+                    bowlingHand.value || null,
+
+                batting_style:
+                    battingStyle.value.trim() || null,
+
+                bowling_style:
+                    bowlingStyle.value.trim() || null,
+
+                profile_photo:
+                    profilePhoto.value.trim() || null,
+
+                bio:
+                    bio.value.trim() || null
+            };
+
+
+            let error;
+
+
+            if (playerId.value) {
+
+                const result = await sccSupabase
+                    .from("players")
+                    .update(playerData)
+                    .eq("id", playerId.value);
+
+                error = result.error;
+
+            } else {
+
+                const result = await sccSupabase
+                    .from("players")
+                    .insert([playerData]);
+
+                error = result.error;
+
+            }
+
+
+            if (error) {
+
+                playerMessage.textContent =
+                    "Error: " + error.message;
+
+                console.error(error);
+
+                return;
+            }
+
+
+            playerMessage.textContent =
+                playerId.value
+                    ? "Player updated successfully!"
+                    : "Player added successfully!";
+
+
+            resetPlayerForm();
+
+            loadPlayers();
+
+        });
+
+
+        // Edit player
+
+        async function editPlayer(id) {
+
+            const { data, error } = await sccSupabase
+                .from("players")
+                .select("*")
+                .eq("id", id)
+                .single();
+
+
+            if (error) {
+
+                alert(
+                    "Unable to load player: " +
+                    error.message
+                );
+
+                return;
+            }
+
+
+            playerId.value = data.id;
+
+            fullName.value =
+                data.full_name || "";
+
+            jerseyNumber.value =
+                data.jersey_number || "";
+
+            playingRole.value =
+                data.playing_role || "";
+
+            battingHand.value =
+                data.batting_hand || "";
+
+            bowlingHand.value =
+                data.bowling_hand || "";
+
+            battingStyle.value =
+                data.batting_style || "";
+
+            bowlingStyle.value =
+                data.bowling_style || "";
+
+            profilePhoto.value =
+                data.profile_photo || "";
+
+            bio.value =
+                data.bio || "";
+
+
+            formTitle.textContent =
+                "Edit Player";
+
+            cancelEditBtn.style.display =
+                "inline-block";
+
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+
+
+        // Delete player
+
+        async function deletePlayer(id) {
+
+            const confirmDelete =
+                confirm(
+                    "Are you sure you want to delete this player?"
+                );
+
+            if (!confirmDelete) {
+                return;
+            }
+
+
+            const { error } = await sccSupabase
+                .from("players")
+                .delete()
+                .eq("id", id);
+
+
+            if (error) {
+
+                alert(
+                    "Delete failed: " +
+                    error.message
+                );
+
+                return;
+            }
+
+
+            alert("Player deleted successfully.");
+
+            loadPlayers();
+
+        }
+
+
+        // Reset form
+
+        function resetPlayerForm() {
+
+            playerForm.reset();
+
+            playerId.value = "";
+
+            formTitle.textContent =
+                "Add New Player";
+
+            cancelEditBtn.style.display =
+                "none";
+
+        }
+
+
+        cancelEditBtn.addEventListener(
+            "click",
+            resetPlayerForm
+        );
+
+
+        // Logout
+
+        logoutBtn.addEventListener(
+            "click",
+            async function() {
+
+                await sccSupabase.auth.signOut();
+
+                window.location.href =
+                    "admin.html";
+
+            }
+        );
+
+
+        // Start
+
+        checkAdmin();
+        loadPlayers();
+
+    </script>
+
+</body>
+</html>

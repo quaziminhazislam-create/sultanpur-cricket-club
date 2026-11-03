@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SCC Admin - Applications</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .applications-page {
+            padding: 50px 5%;
+            min-height: 75vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .admin-header h1 {
+            margin: 5px 0;
+        }
+
+        .logout-btn {
+            padding: 12px 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            cursor: pointer;
+        }
+
+        .applications-table-box {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            background: rgba(10, 25, 55, 0.75);
+        }
+
+        .applications-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+
+        .applications-table th,
+        .applications-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .applications-table th {
+            color: #00d9ff;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .applications-table td {
+            color: #e8f7ff;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+        }
+
+        .status-approved {
+            background: rgba(0, 255, 140, 0.15);
+            color: #00ff8c;
+        }
+
+        .status-rejected {
+            background: rgba(255, 70, 70, 0.15);
+            color: #ff7070;
+        }
+
+        .status-select {
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            background: #102b59;
+            color: white;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .status-select:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+
+        .loading,
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            color: #ff7070;
+        }
+
+        .logout-btn:hover {
+            background: rgba(0, 217, 255, 0.15);
+        }
+
+        @media (max-width: 600px) {
+            .applications-page {
+                padding: 35px 4%;
+            }
+
+            .admin-header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <a href="index.html" class="logo">SCC</a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="players.html">Players</a>
+            <a href="matches.html">Matches</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+    </header>
+
+
+    <!-- APPLICATIONS SECTION -->
+
+    <main class="applications-page">
+
+        <div class="admin-header">
+
+            <div>
+                <p class="section-tag">SCC ADMIN PANEL</p>
+
+                <h1>PLAYER APPLICATIONS</h1>
+
+                <p>Review applications submitted by players.</p>
+            </div>
+
+            <button class="logout-btn" id="logoutBtn">
+                LOGOUT
+            </button>
+
+        </div>
+
+
+        <!-- APPLICATION TABLE -->
+
+        <div class="applications-table-box">
+
+            <table class="applications-table">
+
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Level</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="applicationsBody">
+
+                    <tr>
+                        <td colspan="7" class="loading">
+                            Loading applications...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <h2>SULTANPUR CRICKET CLUB</h2>
+
+        <p>Born in 2026 • Sultanpur, Howrah</p>
+
+        <p class="copyright">
+            © 2026 Sultanpur Cricket Club. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <!-- SUPABASE LIBRARY -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="supabase.js"></script>
+
+
+    <!-- APPLICATION MANAGEMENT JAVASCRIPT -->
+
+    <script>
+
+        const applicationsBody =
+            document.getElementById("applicationsBody");
+
+        const logoutBtn =
+            document.getElementById("logoutBtn");
+
+
+        // CHECK ADMIN LOGIN
+
+        async function checkAdminLogin() {
+
+            const { data, error } =
+                await sccSupabase.auth.getSession();
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data.session) {
+
+                window.location.href = "admin.html";
+
+                return false;
+            }
+
+            // Verify admin account
+
+            const { data: adminRecord, error: adminError } =
+                await sccSupabase
+                    .from("admin_users")
+                    .select("user_id, role")
+                    .eq("user_id", data.session.user.id)
+                    .maybeSingle();
+
+            if (adminError) {
+                throw adminError;
+            }
+
+            if (!adminRecord || adminRecord.role !== "admin") {
+
+                alert("Admin access required.");
+
+                window.location.href = "admin.html";
+
+                return false;
+            }
+
+            return true;
+        }
+
+
+        // CREATE TABLE CELL SAFELY
+
+        function createCell(value) {
+
+            const cell = document.createElement("td");
+
+            cell.textContent =
+                value === null || value === undefined || value === ""
+                    ? "-"
+                    : value;
+
+            return cell;
+        }
+
+
+        // LOAD APPLICATIONS
+
+        async function loadApplications() {
+
+            applicationsBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading">
+                        Loading applications...
+                    </td>
+                </tr>
+            `;
+
+            try {
+
+                const loggedIn = await checkAdminLogin();
+
+                if (!loggedIn) return;
+
+
+                const { data, error } =
+                    await sccSupabase
+                        .from("Player_application")
+                        .select("*")
+                        .order("created_at", {
+                            ascending: false
+                        });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (!data || data.length === 0) {
+
+                    applicationsBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="empty-message">
+                                No applications found.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+
+                applicationsBody.innerHTML = "";
+
+
+                data.forEach(application => {
+
+                    const status =
+                        application.status || "Pending";
+
+
+                    const row = document.createElement("tr");
+
+
+                    // NAME
+
+                    row.appendChild(
+                        createCell(application.full_name)
+                    );
+
+
+                    // AGE
+
+                    row.appendChild(
+                        createCell(application.age)
+                    );
+
+
+                    // ROLE
+
+                    row.appendChild(
+                        createCell(application.playing_role)
+                    );
+
+
+                    // PHONE
+
+                    row.appendChild(
+                        createCell(application.phone)
+                    );
+
+
+                    // PLAYING LEVEL
+
+                    row.appendChild(
+                        createCell(application.playing_level)
+                    );
+
+
+                    // EXPERIENCE
+
+                    row.appendChild(
+                        createCell(application.experience)
+                    );
+
+
+                    // STATUS CELL
+
+                    const statusCell =
+                        document.createElement("td");
+
+
+                    // STATUS BADGE
+
+                    const badge =
+                        document.createElement("span");
+
+                    badge.className = "status";
+
+
+                    if (status === "Approved") {
+
+                        badge.classList.add("status-approved");
+
+                    } else if (status === "Rejected") {
+
+                        badge.classList.add("status-rejected");
+
+                    } else {
+
+                        badge.classList.add("status-pending");
+                    }
+
+
+                    badge.textContent = status;
+
+
+                    // STATUS DROPDOWN
+
+                    const select =
+                        document.createElement("select");
+
+                    select.className = "status-select";
+
+
+                    const options = [
+                        "Pending",
+                        "Approved",
+                        "Rejected"
+                    ];
+
+
+                    options.forEach(optionValue => {
+
+                        const option =
+                            document.createElement("option");
+
+                        option.value = optionValue;
+
+                        option.textContent = optionValue;
+
+                        select.appendChild(option);
+
+                    });
+
+
+                    select.value = status;
+
+
+                    // STATUS CHANGE EVENT
+
+                    select.addEventListener("change", async function () {
+
+                        await updateApplicationStatus(
+                            application.id,
+                            this.value,
+                            this
+                        );
+
+                    });
+
+
+                    statusCell.appendChild(badge);
+
+                    statusCell.appendChild(
+                        document.createElement("br")
+                    );
+
+                    statusCell.appendChild(select);
+
+
+                    row.appendChild(statusCell);
+
+
+                    applicationsBody.appendChild(row);
+
+                });
+
+            } catch (error) {
+
+                console.error(
+                    "Application loading error:",
+                    error
+                );
+
+                applicationsBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="error-message">
+                            ${error.message || "Unable to load applications."}
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+        }
+
+
+        // UPDATE APPLICATION STATUS
+
+        async function updateApplicationStatus(
+            applicationId,
+            newStatus,
+            selectElement
+        ) {
+
+            selectElement.disabled = true;
+
+
+            try {
+
+                // APPROVE APPLICATION
+
+                if (newStatus === "Approved") {
+
+                    const { data, error } =
+                        await sccSupabase.rpc(
+                            "approve_player_application",
+                            {
+                                application_id: Number(applicationId)
+                            }
+                        );
+
+
+                    if (error) {
+                        throw error;
+                    }
+
+
+                    let result = data;
+
+
+                    if (typeof result === "string") {
+
+                        try {
+                            result = JSON.parse(result);
+                        } catch {
+                            throw new Error(
+                                "Unexpected approval response."
+                            );
+                        }
+
+                    }
+
+
+                    if (!result || result.success !== true) {
+
+                        throw new Error(
+                            "Player approval was not completed."
+                        );
+
+                    }
+
+
+                    alert(
+                        "Application approved successfully! Player has been added to the squad."
+                    );
+
+                }
+
+
+                // REJECT OR RESET STATUS
+
+                else {
+
+                    const { error } =
+                        await sccSupabase
+                            .from("Player_application")
+                            .update({
+                                status: newStatus
+                            })
+                            .eq("id", applicationId);
+
+
+                    if (error) {
+                        throw error;
+                    }
+
+
+                    alert(
+                        "Application status updated to " + newStatus
+                    );
+
+                }
+
+
+                // RELOAD TABLE
+
+                await loadApplications();
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Status update error:",
+                    error
+                );
+
+
+                alert(
+                    "Update failed: " + error.message
+                );
+
+
+                await loadApplications();
+
+            }
+
+
+            finally {
+
+                selectElement.disabled = false;
+
+            }
+
+        }
+
+
+        // LOGOUT
+
+        logoutBtn.addEventListener("click", async function () {
+
+            const { error } =
+                await sccSupabase.auth.signOut();
+
+            if (error) {
+
+                alert("Logout failed: " + error.message);
+
+                return;
+            }
+
+            window.location.href = "admin.html";
+
+        });
+
+
+        // START APPLICATIONS PAGE
+
+        loadApplications();
+
+    </script>
+
+</body>
+
+</html>

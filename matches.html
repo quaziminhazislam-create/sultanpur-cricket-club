@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Matches | Sultanpur Cricket Club</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* =========================================
+           MATCHES PAGE
+        ========================================= */
+
+        .matches-page {
+            min-height: 100vh;
+            padding: 110px 6% 80px;
+        }
+
+        .matches-header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .matches-header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .matches-header p {
+            color: #aebbd1;
+            font-size: 16px;
+        }
+
+        .matches-section {
+            max-width: 1100px;
+            margin: 0 auto 65px;
+        }
+
+        .section-label {
+            text-align: center;
+            color: #00d9ff;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 28px;
+        }
+
+        /* =========================================
+           LOADING / EMPTY
+        ========================================= */
+
+        .loading-box,
+        .empty-box,
+        .error-box {
+            width: 100%;
+            padding: 25px;
+            text-align: center;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            color: #c8d4e8;
+        }
+
+        .error-box {
+            color: #ff8e8e;
+            border-color: rgba(255, 70, 70, 0.25);
+        }
+
+        /* =========================================
+           MATCH CARD
+        ========================================= */
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .match-card {
+            position: relative;
+            padding: 28px;
+            border-radius: 22px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(10, 45, 100, 0.88),
+                    rgba(4, 18, 48, 0.95)
+                );
+
+            border: 1px solid rgba(0, 217, 255, 0.18);
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.25);
+
+            overflow: hidden;
+        }
+
+        .match-card::before {
+            content: "";
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 180px;
+            height: 180px;
+            background: rgba(0, 217, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .match-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .match-status {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-upcoming {
+            color: #75e6ff;
+            background: rgba(0, 217, 255, 0.12);
+            border: 1px solid rgba(0, 217, 255, 0.25);
+        }
+
+        .status-live {
+            color: #7dffb2;
+            background: rgba(0, 255, 120, 0.12);
+            border: 1px solid rgba(0, 255, 120, 0.25);
+        }
+
+        .status-completed {
+            color: #d0d7e4;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .match-date {
+            color: #9eabc0;
+            font-size: 13px;
+        }
+
+        .match-main {
+            text-align: center;
+            padding: 12px 0 20px;
+        }
+
+        .match-main .club-name {
+            font-size: 14px;
+            color: #00d9ff;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .match-main .vs {
+            font-size: 13px;
+            color: #7e8ca3;
+            margin: 5px 0;
+        }
+
+        .match-main .opponent {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .match-score {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 10px 0;
+            color: #ffffff;
+        }
+
+        .match-result {
+            text-align: center;
+            color: #72e6a5;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .match-details {
+            display: grid;
+            gap: 10px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .match-detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        .match-detail span:first-child {
+            color: #77869e;
+        }
+
+        .match-detail span:last-child {
+            color: #dce6f5;
+            text-align: right;
+        }
+
+        .match-notes {
+            margin-top: 15px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #aebbd1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* =========================================
+           HISTORY
+        ========================================= */
+
+        .history-list {
+            display: grid;
+            gap: 18px;
+        }
+
+        .history-card {
+            display: grid;
+            grid-template-columns: 130px 1fr auto;
+            align-items: center;
+            gap: 25px;
+
+            padding: 22px 25px;
+            border-radius: 18px;
+
+            background: rgba(255, 255, 255, 0.045);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            transition: 0.25s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 217, 255, 0.25);
+        }
+
+        .history-date {
+            color: #00d9ff;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .history-opponent {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .history-meta {
+            margin-top: 6px;
+            color: #8593aa;
+            font-size: 12px;
+        }
+
+        .history-score {
+            text-align: right;
+        }
+
+        .history-score strong {
+            display: block;
+            color: #ffffff;
+            font-size: 18px;
+        }
+
+        .history-result {
+            margin-top: 5px;
+            color: #71e5a1;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width: 800px) {
+
+            .matches-page {
+                padding: 95px 5% 60px;
+            }
+
+            .matches-header h1 {
+                font-size: 36px;
+            }
+
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .history-card {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .history-score {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .matches-header h1 {
+                font-size: 30px;
+            }
+
+            .section-title {
+                font-size: 26px;
+            }
+
+            .match-card {
+                padding: 22px;
+            }
+
+            .match-main .opponent {
+                font-size: 23px;
+            }
+
+            .history-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================================
+         NAVBAR
+    ========================================= -->
+
+    <header class="navbar">
+
+        <div class="logo">
+            SULTANPUR CRICKET CLUB
+        </div>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="players.html">Players</a>
+            <a href="matches.html" class="active">Matches</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+    </header>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================= -->
+
+    <main class="matches-page">
+
+        <section class="matches-header">
+
+            <h1>OUR MATCHES</h1>
+
+            <p>
+                Upcoming fixtures, live matches and completed games.
+            </p>
+
+        </section>
+
+
+        <!-- =====================================
+             UPCOMING / LIVE
+        ====================================== -->
+
+        <section class="matches-section">
+
+            <div class="section-label">
+                FIXTURES
+            </div>
+
+            <h2 class="section-title">
+                UPCOMING & LIVE MATCHES
+            </h2>
+
+            <div id="activeMatches">
+
+                <div class="loading-box">
+                    Loading matches...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             MATCH HISTORY
+        ====================================== -->
+
+        <section class="matches-section">
+
+            <div class="section-label">
+                MATCH HISTORY
+            </div>
+
+            <h2 class="section-title">
+                COMPLETED MATCHES
+            </h2>
+
+            <div id="matchHistory">
+
+                <div class="loading-box">
+                    Loading match history...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================
+         SUPABASE
+    ========================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="supabase.js"></script>
+
+
+    <!-- =========================================
+         MATCHES SCRIPT
+    ========================================= -->
+
+    <script>
+
+        /* =====================================
+           ESCAPE HTML
+        ===================================== */
+
+        function escapeHTML(value) {
+
+            if (value === null || value === undefined) {
+                return "";
+            }
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* =====================================
+           FORMAT DATE
+        ===================================== */
+
+        function formatDate(dateString) {
+
+            if (!dateString) {
+                return "Date not set";
+            }
+
+            const date = new Date(dateString + "T00:00:00");
+
+            if (isNaN(date.getTime())) {
+                return dateString;
+            }
+
+            return date.toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+        }
+
+
+        /* =====================================
+           STATUS CLASS
+        ===================================== */
+
+        function getStatusClass(status) {
+
+            const value = String(status || "").toLowerCase();
+
+            if (value === "live") {
+                return "status-live";
+            }
+
+            if (value === "completed") {
+                return "status-completed";
+            }
+
+            return "status-upcoming";
+        }
+
+
+        /* =====================================
+           CREATE MATCH CARD
+        ===================================== */
+
+        function createMatchCard(match) {
+
+            const status = match.match_status || "Upcoming";
+
+            return `
+
+                <article class="match-card">
+
+                    <div class="match-top">
+
+                        <span class="match-status ${getStatusClass(status)}">
+                            ${escapeHTML(status)}
+                        </span>
+
+                        <span class="match-date">
+                            ${escapeHTML(formatDate(match.match_date))}
+                        </span>
+
+                    </div>
+
+
+                    <div class="match-main">
+
+                        <div class="club-name">
+                            SULTANPUR CRICKET CLUB
+                        </div>
+
+                        <div class="vs">
+                            VS
+                        </div>
+
+                        <div class="opponent">
+                            ${escapeHTML(match.opponent)}
+                        </div>
+
+                    </div>
+
+
+                    ${
+                        match.score
+                        ? `
+                            <div class="match-score">
+                                ${escapeHTML(match.score)}
+                            </div>
+                        `
+                        : ""
+                    }
+
+
+                    ${
+                        match.result
+                        ? `
+                            <div class="match-result">
+                                ${escapeHTML(match.result)}
+                            </div>
+                        `
+                        : ""
+                    }
+
+
+                    <div class="match-details">
+
+                        ${
+                            match.competition
+                            ? `
+                                <div class="match-detail">
+                                    <span>Competition</span>
+                                    <span>${escapeHTML(match.competition)}</span>
+                                </div>
+                            `
+                            : ""
+                        }
+
+
+                        ${
+                            match.venue
+                            ? `
+                                <div class="match-detail">
+                                    <span>Venue</span>
+                                    <span>${escapeHTML(match.venue)}</span>
+                                </div>
+                            `
+                            : ""
+                        }
+
+                    </div>
+
+
+                    ${
+                        match.notes
+                        ? `
+                            <div class="match-notes">
+                                ${escapeHTML(match.notes)}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                </article>
+
+            `;
+        }
+
+
+        /* =====================================
+           CREATE HISTORY CARD
+        ===================================== */
+
+        function createHistoryCard(match) {
+
+            return `
+
+                <article class="history-card">
+
+                    <div class="history-date">
+                        ${escapeHTML(formatDate(match.match_date))}
+                    </div>
+
+
+                    <div>
+
+                        <div class="history-opponent">
+                            SCC vs ${escapeHTML(match.opponent)}
+                        </div>
+
+                        <div class="history-meta">
+
+                            ${
+                                match.venue
+                                ? escapeHTML(match.venue)
+                                : "Venue not specified"
+                            }
+
+                            ${
+                                match.competition
+                                ? " • " + escapeHTML(match.competition)
+                                : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="history-score">
+
+                        <strong>
+                            ${
+                                match.score
+                                ? escapeHTML(match.score)
+                                : "Score not available"
+                            }
+                        </strong>
+
+
+                        ${
+                            match.result
+                            ? `
+                                <div class="history-result">
+                                    ${escapeHTML(match.result)}
+                                </div>
+                            `
+                            : ""
+                        }
+
+                    </div>
+
+                </article>
+
+            `;
+        }
+
+
+        /* =====================================
+           LOAD MATCHES
+        ===================================== */
+
+        async function loadMatches() {
+
+            const activeBox =
+                document.getElementById("activeMatches");
+
+            const historyBox =
+                document.getElementById("matchHistory");
+
+
+            try {
+
+                const { data, error } = await sccSupabase
+
+                    .from("matches")
+
+                    .select("*")
+
+                    .order("match_date", {
+                        ascending: true
+                    });
+
+
+                if (error) {
+
+                    console.error(
+                        "Matches loading error:",
+                        error
+                    );
+
+                    activeBox.innerHTML = `
+                        <div class="error-box">
+                            Unable to load matches.
+                        </div>
+                    `;
+
+                    historyBox.innerHTML = `
+                        <div class="error-box">
+                            Unable to load match history.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                const matches = data || [];
+
+
+                /* =================================
+                   ACTIVE MATCHES
+                ================================= */
+
+                const activeMatches =
+                    matches.filter(match => {
+
+                        const status =
+                            String(
+                                match.match_status || ""
+                            ).toLowerCase();
+
+                        return (
+                            status === "upcoming" ||
+                            status === "live"
+                        );
+
+                    });
+
+
+                if (activeMatches.length === 0) {
+
+                    activeBox.innerHTML = `
+                        <div class="empty-box">
+                            No upcoming or live matches.
+                        </div>
+                    `;
+
+                } else {
+
+                    activeBox.innerHTML = `
+
+                        <div class="matches-grid">
+
+                            ${activeMatches
+                                .map(match =>
+                                    createMatchCard(match)
+                                )
+                                .join("")
+                            }
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                /* =================================
+                   COMPLETED MATCHES
+                ================================= */
+
+               const completedMatches = matches
+    .filter(match => match.match_status === "Completed")
+    .sort((a, b) => {
+        return (b.match_date || "").localeCompare(a.match_date || "");
+    });
+
+if (completedMatches.length === 0) {
+    historyBox.innerHTML = `
+        <div class="empty-state">
+            No completed matches yet.
+        </div>
+    `;
+} else {
+    historyBox.innerHTML = completedMatches
+        .map(match => createMatchCard(match, true))
+        .join("");
+}
+
+            } catch (error) {
+
+                console.error("Unexpected matches loading error:", error);
+
+                activeBox.innerHTML = `
+                    <div class="error-box">
+                        Unable to load matches.
+                    </div>
+                `;
+
+                historyBox.innerHTML = `
+                    <div class="error-box">
+                        Unable to load match history.
+                    </div>
+                `;
+            }
+
+        }
+
+        loadMatches();
+
+    </script>
+
+</body>
+
+</html>
+}

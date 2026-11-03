@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Application | SCC</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .tracker-page {
+            min-height: 70vh;
+            padding: 65px 5%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .tracker-card {
+            width: 100%;
+            max-width: 600px;
+            padding: 35px;
+            border: 1px solid rgba(0,217,255,.25);
+            border-radius: 20px;
+            background: rgba(10,25,55,.8);
+            box-shadow: 0 15px 45px rgba(0,0,0,.2);
+        }
+
+        .tracker-card h1 {
+            margin: 10px 0;
+        }
+
+        .tracker-card p {
+            line-height: 1.6;
+        }
+
+        .tracker-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(0,217,255,.35);
+            background: rgba(0,0,0,.2);
+            color: white;
+            font-size: 16px;
+        }
+
+        .tracker-button {
+            width: 100%;
+            padding: 15px;
+            border: 0;
+            border-radius: 10px;
+            background: #00bce8;
+            color: #06172b;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .tracker-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .tracker-result {
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 13px;
+            background: rgba(0,150,255,.1);
+            border: 1px solid rgba(0,217,255,.25);
+        }
+
+        .tracker-status {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 9px 16px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: #ffc107;
+            background: rgba(255,193,7,.15);
+        }
+
+        .approved {
+            color: #00ff8c;
+            background: rgba(0,255,140,.15);
+        }
+
+        .rejected {
+            color: #ff7070;
+            background: rgba(255,70,70,.15);
+        }
+
+        .tracker-message {
+            margin-top: 15px;
+            color: #ff8585;
+        }
+
+        @media(max-width:600px) {
+            .tracker-page {
+                padding: 35px 4%;
+            }
+
+            .tracker-card {
+                padding: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="index.html" class="logo">SCC</a>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="players.html">Players</a>
+        <a href="matches.html">Matches</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
+
+<main class="tracker-page">
+
+    <section class="tracker-card">
+
+        <p class="section-tag">SULTANPUR CRICKET CLUB</p>
+
+        <h1>APPLICATION TRACKER</h1>
+
+        <p>
+            Enter your private Tracking ID to check your
+            player application status.
+        </p>
+
+        <form id="trackerForm">
+
+            <input
+                type="text"
+                id="trackingInput"
+                class="tracker-input"
+                placeholder="Enter your SCC Tracking ID"
+                maxlength="36"
+                required
+                autocomplete="off"
+            >
+
+            <button type="submit" id="checkButton" class="tracker-button">
+                CHECK APPLICATION STATUS
+            </button>
+
+        </form>
+
+        <p id="trackerMessage" class="tracker-message"
+           role="status"></p>
+
+        <div id="trackerResult" class="tracker-result">
+
+            <h2>APPLICATION DETAILS</h2>
+
+            <p>
+                Applicant Name:
+                <strong id="applicantName"></strong>
+            </p>
+
+            <p>Application Status:</p>
+
+            <span id="applicationStatus" class="tracker-status"></span>
+
+            <p id="statusExplanation"></p>
+
+            <p id="submittedDate"></p>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    <h2>SULTANPUR CRICKET CLUB</h2>
+    <p>Born in 2026 • Sultanpur, Howrah</p>
+    <p class="copyright">
+        © 2026 Sultanpur Cricket Club. All Rights Reserved.
+    </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+const trackerForm = document.getElementById("trackerForm");
+const trackingInput = document.getElementById("trackingInput");
+const checkButton = document.getElementById("checkButton");
+const trackerMessage = document.getElementById("trackerMessage");
+const trackerResult = document.getElementById("trackerResult");
+
+trackerForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const trackingId = trackingInput.value.trim().toUpperCase();
+
+    if (!/^SCC-[A-F0-9]{32}$/.test(trackingId)) {
+        trackerResult.style.display = "none";
+        trackerMessage.textContent = "Please enter a valid SCC Tracking ID.";
+        return;
+    }
+
+    checkButton.disabled = true;
+    checkButton.textContent = "CHECKING...";
+    trackerMessage.textContent = "";
+    trackerResult.style.display = "none";
+
+    try {
+        const { data, error } = await sccSupabase.rpc(
+            "get_application_status",
+            {
+                p_tracking_id: trackingId
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || data.found !== true) {
+            trackerMessage.textContent =
+                "Application not found. Please check your Tracking ID.";
+            return;
+        }
+
+        document.getElementById("applicantName").textContent =
+            data.full_name || "Applicant";
+
+        const statusElement =
+            document.getElementById("applicationStatus");
+
+        const status = data.status || "Pending";
+
+        statusElement.textContent = status;
+        statusElement.className = "tracker-status";
+
+        const explanation =
+            document.getElementById("statusExplanation");
+
+        if (status === "Approved") {
+            statusElement.classList.add("approved");
+            explanation.textContent =
+                "Congratulations! Your application has been approved.";
+        } else if (status === "Rejected") {
+            statusElement.classList.add("rejected");
+            explanation.textContent =
+                "Your application was not approved. Please contact the club for further information.";
+        } else {
+            statusElement.classList.add("pending");
+            explanation.textContent =
+                "Your application is under review. Please check again later.";
+        }
+
+        const submittedDate =
+            document.getElementById("submittedDate");
+
+        if (data.submitted_at) {
+            submittedDate.textContent =
+                "Submitted: " +
+                new Date(data.submitted_at).toLocaleDateString("en-IN");
+        } else {
+            submittedDate.textContent = "";
+        }
+
+        trackerResult.style.display = "block";
+        trackerResult.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    } catch (error) {
+        console.error("Tracking error:", error);
+        trackerMessage.textContent =
+            "Unable to check status: " + error.message;
+
+    } finally {
+        checkButton.disabled = false;
+        checkButton.textContent = "CHECK APPLICATION STATUS";
+    }
+});
+</script>
+
+</body>
+</html>

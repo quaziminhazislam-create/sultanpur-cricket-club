@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join SCC | Sultanpur Cricket Club</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .tracking-success {
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border: 1px solid rgba(0,217,255,.4);
+            border-radius: 15px;
+            background: rgba(0,150,255,.10);
+        }
+
+        .tracking-id {
+            display: block;
+            margin: 14px 0;
+            padding: 14px;
+            border-radius: 9px;
+            background: rgba(0,0,0,.25);
+            color: #00d9ff;
+            font-size: 19px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+            letter-spacing: 1px;
+        }
+
+        .tracking-action {
+            display: inline-block;
+            margin: 7px 7px 0 0;
+            padding: 11px 17px;
+            border: 1px solid rgba(0,217,255,.5);
+            border-radius: 9px;
+            color: white;
+            background: rgba(0,150,255,.15);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .tracking-note {
+            color: #b9d9e9;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .application-submit:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="index.html" class="logo">SCC</a>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="players.html">Players</a>
+        <a href="matches.html">Matches</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
+
+<main>
+    <section class="application-page">
+
+        <p class="section-tag">SULTANPUR CRICKET CLUB</p>
+        <h1>JOIN OUR SQUAD</h1>
+
+        <p class="application-intro">
+            Interested in becoming a player of Sultanpur Cricket Club?
+            Complete the application form below.
+        </p>
+
+        <form id="playerApplicationForm" class="application-form">
+
+            <h2>PERSONAL INFORMATION</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>FULL NAME</label>
+                    <input type="text" name="full_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>AGE</label>
+                    <input type="number" name="age" min="5" max="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label>GENDER</label>
+                    <select name="gender" required>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>DATE OF BIRTH</label>
+                    <input type="date" name="date_of_birth" required>
+                </div>
+
+                <div class="form-group">
+                    <label>PHONE</label>
+                    <input type="tel" name="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label>EMAIL</label>
+                    <input type="email" name="email">
+                </div>
+
+            </div>
+
+            <h2>CRICKET INFORMATION</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>PLAYING ROLE</label>
+                    <select name="playing_role" required>
+                        <option value="">Select</option>
+                        <option value="Batsman">Batsman</option>
+                        <option value="Bowler">Bowler</option>
+                        <option value="All-rounder">All-rounder</option>
+                        <option value="Wicketkeeper">Wicketkeeper</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>PLAYING LEVEL</label>
+                    <select name="playing_level">
+                        <option value="">Select</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>BATTING HAND</label>
+                    <select name="batting_hand">
+                        <option value="">Select</option>
+                        <option value="Right-handed">Right-handed</option>
+                        <option value="Left-handed">Left-handed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>BOWLING HAND</label>
+                    <select name="bowling_hand">
+                        <option value="">Select</option>
+                        <option value="Right-handed">Right-handed</option>
+                        <option value="Left-handed">Left-handed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>BATTING STYLE</label>
+                    <input type="text" name="batting_style"
+                           placeholder="e.g. Defensive / Aggressive">
+                </div>
+
+                <div class="form-group">
+                    <label>BOWLING STYLE</label>
+                    <input type="text" name="bowling_style"
+                           placeholder="e.g. Fast / Spin">
+                </div>
+
+                <div class="form-group">
+                    <label>HEIGHT (CM)</label>
+                    <input type="number" name="height_cm" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label>WEIGHT (KG)</label>
+                    <input type="number" name="weight_kg" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label>JERSEY NUMBER</label>
+                    <input type="number" name="jersey_number">
+                </div>
+
+            </div>
+
+            <h2>OTHER INFORMATION</h2>
+
+            <div class="form-group full-width">
+                <label>ADDRESS</label>
+                <textarea name="address" rows="4"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+                <label>CRICKET EXPERIENCE</label>
+                <textarea name="experience" rows="4"
+                    placeholder="Tell us about your cricket experience"></textarea>
+            </div>
+
+            <button type="submit" class="application-submit" id="submitBtn">
+                SUBMIT APPLICATION
+            </button>
+
+            <p id="formMessage" class="form-message" role="status"></p>
+
+            <div id="trackingSuccess" class="tracking-success" aria-live="polite">
+                <h2>APPLICATION SUBMITTED!</h2>
+                <p>Your application was received successfully.</p>
+
+                <p>Your Tracking ID:</p>
+                <span id="trackingIdDisplay" class="tracking-id"></span>
+
+                <p class="tracking-note">
+                    Save this ID safely. You will need it to check your
+                    application status later. Do not share it with others.
+                </p>
+
+                <button type="button" class="tracking-action" id="copyTrackingBtn">
+                    COPY TRACKING ID
+                </button>
+
+                <a href="track-application.html" class="tracking-action">
+                    CHECK APPLICATION STATUS
+                </a>
+            </div>
+
+        </form>
+    </section>
+</main>
+
+<footer>
+    <h2>SULTANPUR CRICKET CLUB</h2>
+    <p>Born in 2026 • Sultanpur, Howrah</p>
+    <p class="copyright">
+        © 2026 Sultanpur Cricket Club. All Rights Reserved.
+    </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+const applicationForm = document.getElementById("playerApplicationForm");
+const formMessage = document.getElementById("formMessage");
+const submitBtn = document.getElementById("submitBtn");
+const trackingSuccess = document.getElementById("trackingSuccess");
+const trackingIdDisplay = document.getElementById("trackingIdDisplay");
+const copyTrackingBtn = document.getElementById("copyTrackingBtn");
+
+let currentTrackingId = "";
+
+// Generate an unpredictable tracking ID
+function generateTrackingId() {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+
+    const randomPart = Array.from(bytes)
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("")
+        .toUpperCase();
+
+    return "SCC-" + randomPart;
+}
+
+applicationForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "SUBMITTING...";
+    formMessage.textContent = "Submitting your application...";
+    formMessage.style.color = "#00d9ff";
+    trackingSuccess.style.display = "none";
+
+    try {
+        const formData = new FormData(applicationForm);
+        const trackingId = generateTrackingId();
+
+        const applicationData = {
+            tracking_id: trackingId,
+            full_name: formData.get("full_name").trim(),
+            age: Number(formData.get("age")),
+            gender: formData.get("gender"),
+            date_of_birth: formData.get("date_of_birth") || null,
+            phone: formData.get("phone").trim(),
+            email: formData.get("email") || null,
+            address: formData.get("address") || null,
+            playing_role: formData.get("playing_role"),
+            playing_level: formData.get("playing_level") || null,
+            batting_hand: formData.get("batting_hand") || null,
+            bowling_hand: formData.get("bowling_hand") || null,
+            batting_style: formData.get("batting_style") || null,
+            bowling_style: formData.get("bowling_style") || null,
+            height_cm: formData.get("height_cm")
+                ? Number(formData.get("height_cm")) : null,
+            weight_kg: formData.get("weight_kg")
+                ? Number(formData.get("weight_kg")) : null,
+            jersey_number: formData.get("jersey_number") || null,
+            experience: formData.get("experience") || null
+        };
+
+        const { error } = await sccSupabase
+            .from("Player_application")
+            .insert([applicationData]);
+
+        if (error) throw error;
+
+        currentTrackingId = trackingId;
+        trackingIdDisplay.textContent = trackingId;
+
+        applicationForm.reset();
+
+        formMessage.textContent = "Application submitted successfully!";
+        formMessage.style.color = "#00d9ff";
+
+        trackingSuccess.style.display = "block";
+        trackingSuccess.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    } catch (error) {
+        console.error("Application submission error:", error);
+
+        formMessage.textContent =
+            "Application failed: " + error.message;
+
+        formMessage.style.color = "#ff5c5c";
+
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "SUBMIT APPLICATION";
+    }
+});
+
+copyTrackingBtn.addEventListener("click", async function() {
+    if (!currentTrackingId) return;
+
+    try {
+        await navigator.clipboard.writeText(currentTrackingId);
+        copyTrackingBtn.textContent = "COPIED!";
+    } catch (error) {
+        alert("Please copy your Tracking ID manually: " + currentTrackingId);
+    }
+});
+</script>
+
+</body>
+</html>

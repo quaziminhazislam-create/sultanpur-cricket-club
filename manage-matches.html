@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Matches | SCC Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        /* =================================
+           MATCH SQUAD EDITOR
+        ================================= */
+
+        .squad-editor {
+            display: none;
+            margin-top: 25px;
+        }
+
+        .squad-editor.active {
+            display: block;
+        }
+
+        .squad-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .squad-header h2 {
+            margin: 5px 0;
+        }
+
+        .squad-header p {
+            margin: 5px 0;
+            opacity: 0.7;
+        }
+
+        .squad-player-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .squad-player {
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.035);
+        }
+
+        .squad-player-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .squad-player input[type="checkbox"] {
+            width: 19px;
+            height: 19px;
+            cursor: pointer;
+        }
+
+        .squad-player-name {
+            font-weight: 700;
+        }
+
+        .squad-player-jersey {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
+
+        .squad-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .squad-options select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 9px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .squad-save-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .squad-manage-btn {
+            padding: 8px 13px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            background: rgba(0,200,255,0.15);
+            color: #7cefff;
+        }
+
+        .squad-manage-btn:hover {
+            background: rgba(0,200,255,0.28);
+        }
+
+        .squad-close-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .squad-message {
+            margin-top: 14px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #65f6c4;
+        }
+
+        .error-message {
+            color: #ff7777;
+        }
+
+        @media (max-width: 700px) {
+
+            .squad-player-list {
+                grid-template-columns: 1fr;
+            }
+
+            .squad-options {
+                grid-template-columns: 1fr;
+            }
+
+            .squad-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="admin-page">
+
+<div class="admin-container">
+
+
+    <!-- =================================
+         ADMIN HEADER
+    ================================= -->
+
+    <div class="admin-header">
+
+        <div>
+
+            <p class="admin-label">
+                SCC ADMIN PANEL
+            </p>
+
+            <h1>
+                Manage Matches
+            </h1>
+
+            <p>
+                Add, edit, delete matches and manage match squads.
+            </p>
+
+        </div>
+
+        <button
+            id="logoutBtn"
+            class="admin-logout">
+            Logout
+        </button>
+
+    </div>
+
+
+
+    <!-- =================================
+         ADD / EDIT MATCH
+    ================================= -->
+
+    <div class="player-management-card">
+
+        <h2 id="formTitle">
+            Add New Match
+        </h2>
+
+        <form id="matchForm">
+
+            <input
+                type="hidden"
+                id="matchId"
+            >
+
+
+            <div class="admin-form-grid">
+
+
+                <!-- DATE -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Match Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="match_date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- OPPONENT -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Opponent
+                    </label>
+
+                    <input
+                        type="text"
+                        id="opponent"
+                        placeholder="Opponent team name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- VENUE -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Venue
+                    </label>
+
+                    <input
+                        type="text"
+                        id="venue"
+                        placeholder="Match venue"
+                    >
+
+                </div>
+
+
+                <!-- COMPETITION -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Competition
+                    </label>
+
+                    <input
+                        type="text"
+                        id="competition"
+                        placeholder="League / Tournament"
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Match Status
+                    </label>
+
+                    <select id="match_status">
+
+                        <option value="Upcoming">
+                            Upcoming
+                        </option>
+
+                        <option value="Live">
+                            Live
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
+                        <option value="Cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- RESULT -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Result
+                    </label>
+
+                    <input
+                        type="text"
+                        id="result"
+                        placeholder="e.g. SCC won by 5 wickets"
+                    >
+
+                </div>
+
+
+                <!-- SCORE -->
+
+                <div class="admin-form-group">
+
+                    <label>
+                        Score
+                    </label>
+
+                    <input
+                        type="text"
+                        id="score"
+                        placeholder="e.g. SCC 145/5"
+                    >
+
+                </div>
+
+
+                <!-- NOTES -->
+
+                <div class="admin-form-group full-width">
+
+                    <label>
+                        Notes
+                    </label>
+
+                    <textarea
+                        id="notes"
+                        rows="4"
+                        placeholder="Additional match information..."
+                    ></textarea>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="admin-form-actions">
+
+                <button
+                    type="submit"
+                    class="admin-primary-btn">
+
+                    Save Match
+
+                </button>
+
+
+                <button
+                    type="button"
+                    id="cancelEditBtn"
+                    class="admin-secondary-btn"
+                    style="display:none;">
+
+                    Cancel Edit
+
+                </button>
+
+            </div>
+
+
+            <p id="matchMessage"></p>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- =================================
+         MATCH LIST
+    ================================= -->
+
+    <div class="player-management-card">
+
+        <div class="players-list-header">
+
+            <div>
+
+                <h2>
+                    Current Matches
+                </h2>
+
+                <p>
+                    All matches stored in the SCC database.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Opponent
+                        </th>
+
+                        <th>
+                            Venue
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Result
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="matchesBody">
+
+                    <tr>
+
+                        <td colspan="6">
+                            Loading matches...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================
+         MATCH SQUAD EDITOR
+    ================================= -->
+
+    <div
+        id="squadEditor"
+        class="player-management-card squad-editor"
+    >
+
+        <div class="squad-header">
+
+            <div>
+
+                <p class="admin-label">
+                    MATCH SQUAD
+                </p>
+
+                <h2 id="squadMatchTitle">
+                    Manage Squad
+                </h2>
+
+                <p>
+                    Select players and assign squad roles.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="squad-close-btn"
+                onclick="closeSquadEditor()">
+
+                Close
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="squadPlayerList"
+            class="squad-player-list">
+
+            Loading players...
+
+        </div>
+
+
+        <div class="squad-save-area">
+
+            <button
+                type="button"
+                class="admin-primary-btn"
+                onclick="saveSquad()">
+
+                Save Squad
+
+            </button>
+
+        </div>
+
+
+        <p
+            id="squadMessage"
+            class="squad-message">
+        </p>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================
+     SUPABASE
+================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase.js"></script>
+
+
+
+<script>
+
+/* =================================
+   ELEMENTS
+================================= */
+
+const matchForm =
+    document.getElementById("matchForm");
+
+const matchesBody =
+    document.getElementById("matchesBody");
+
+const matchMessage =
+    document.getElementById("matchMessage");
+
+const matchId =
+    document.getElementById("matchId");
+
+const matchDate =
+    document.getElementById("match_date");
+
+const opponent =
+    document.getElementById("opponent");
+
+const venue =
+    document.getElementById("venue");
+
+const competition =
+    document.getElementById("competition");
+
+const matchStatus =
+    document.getElementById("match_status");
+
+const result =
+    document.getElementById("result");
+
+const score =
+    document.getElementById("score");
+
+const notes =
+    document.getElementById("notes");
+
+const formTitle =
+    document.getElementById("formTitle");
+
+const cancelEditBtn =
+    document.getElementById("cancelEditBtn");
+
+const logoutBtn =
+    document.getElementById("logoutBtn");
+
+const squadEditor =
+    document.getElementById("squadEditor");
+
+const squadMatchTitle =
+    document.getElementById("squadMatchTitle");
+
+const squadPlayerList =
+    document.getElementById("squadPlayerList");
+
+const squadMessage =
+    document.getElementById("squadMessage");
+
+
+let currentSquadMatchId = null;
+
+
+/* =================================
+   ESCAPE HTML
+================================= */
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        value ?? "";
+
+    return div.innerHTML;
+}
+
+
+/* =================================
+   CHECK ADMIN
+================================= */
+
+async function checkAdmin() {
+
+    const {
+        data: { user },
+        error: userError
+    } = await sccSupabase.auth.getUser();
+
+
+    if (userError || !user) {
+
+        window.location.href =
+            "admin.html";
+
+        return false;
+    }
+
+
+    const {
+        data,
+        error
+    } = await sccSupabase
+        .from("admin_users")
+        .select("user_id, role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+
+    if (error || !data) {
+
+        await sccSupabase.auth.signOut();
+
+        window.location.href =
+            "admin.html";
+
+        return false;
+    }
+
+
+    return true;
+}
+
+
+/* =================================
+   LOAD MATCHES
+================================= */
+
+async function loadMatches() {
+
+    matchesBody.innerHTML = `
+        <tr>
+            <td colspan="6">
+                Loading matches...
+            </td>
+        </tr>
+    `;
+
+
+    const {
+        data,
+        error
+    } = await sccSupabase
+        .from("matches")
+        .select("*")
+        .order("match_date", {
+            ascending: true
+        });
+
+
+    if (error) {
+
+        console.error(
+            "Load matches error:",
+            error
+        );
+
+        matchesBody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    Failed to load matches:
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        matchesBody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    No matches added yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    matchesBody.innerHTML = "";
+
+
+    data.forEach(match => {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                ${escapeHTML(
+                    match.match_date || "-"
+                )}
+            </td>
+
+            <td>
+                <strong>
+                    ${escapeHTML(
+                        match.opponent || "-"
+                    )}
+                </strong>
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    match.venue || "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    match.match_status || "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    match.result || "-"
+                )}
+            </td>
+
+            <td>
+
+                <button
+                    class="squad-manage-btn"
+                    onclick="openSquadEditor('${match.id}')">
+
+                    Squad
+
+                </button>
+
+
+                <button
+                    class="table-edit-btn"
+                    onclick="editMatch('${match.id}')">
+
+                    Edit
+
+                </button>
+
+
+                <button
+                    class="table-delete-btn"
+                    onclick="deleteMatch('${match.id}')">
+
+                    Delete
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        matchesBody.appendChild(row);
+
+    });
+
+}
+
+
+/* =================================
+   RESET MATCH FORM
+================================= */
+
+function resetMatchForm() {
+
+    matchForm.reset();
+
+    matchId.value = "";
+
+    formTitle.textContent =
+        "Add New Match";
+
+    cancelEditBtn.style.display =
+        "none";
+
+    matchStatus.value =
+        "Upcoming";
+
+}
+
+
+/* =================================
+   ADD / UPDATE MATCH
+================================= */
+
+matchForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        matchMessage.textContent =
+            "Saving match...";
+
+
+        const matchData = {
+
+            match_date:
+                matchDate.value || null,
+
+            opponent:
+                opponent.value.trim(),
+
+            venue:
+                venue.value.trim() || null,
+
+            competition:
+                competition.value.trim() || null,
+
+            match_status:
+                matchStatus.value,
+
+            result:
+                result.value.trim() || null,
+
+            score:
+                score.value.trim() || null,
+
+            notes:
+                notes.value.trim() || null
+
+        };
+
+
+        if (!matchData.opponent) {
+
+            matchMessage.textContent =
+                "Please enter opponent name.";
+
+            return;
+        }
+
+
+        let error = null;
+
+
+        /* UPDATE */
+
+        if (matchId.value) {
+
+            const response =
+                await sccSupabase
+                    .from("matches")
+                    .update(matchData)
+                    .eq("id", matchId.value);
+
+
+            error =
+                response.error;
+
+        }
+
+        /* INSERT */
+
+        else {
+
+            const response =
+                await sccSupabase
+                    .from("matches")
+                    .insert([
+                        matchData
+                    ]);
+
+
+            error =
+                response.error;
+        }
+
+
+        if (error) {
+
+            console.error(
+                "Save match error:",
+                error
+            );
+
+            matchMessage.textContent =
+                "Error: " +
+                error.message;
+
+            return;
+        }
+
+
+        matchMessage.textContent =
+            matchId.value
+                ? "Match updated successfully!"
+                : "Match added successfully!";
+
+
+        resetMatchForm();
+
+
+        await loadMatches();
+
+    }
+);
+
+
+/* =================================
+   EDIT MATCH
+================================= */
+
+async function editMatch(id) {
+
+    const {
+        data,
+        error
+    } = await sccSupabase
+        .from("matches")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+
+    if (error) {
+
+        alert(
+            "Unable to load match: " +
+            error.message
+        );
+
+        return;
+    }
+
+
+    matchId.value =
+        data.id;
+
+    matchDate.value =
+        data.match_date || "";
+
+    opponent.value =
+        data.opponent || "";
+
+    venue.value =
+        data.venue || "";
+
+    competition.value =
+        data.competition || "";
+
+    matchStatus.value =
+        data.match_status ||
+        "Upcoming";
+
+    result.value =
+        data.result || "";
+
+    score.value =
+        data.score || "";
+
+    notes.value =
+        data.notes || "";
+
+
+    formTitle.textContent =
+        "Edit Match";
+
+
+    cancelEditBtn.style.display =
+        "inline-block";
+
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+/* =================================
+   CANCEL EDIT
+================================= */
+
+cancelEditBtn.addEventListener(
+    "click",
+    function() {
+
+        resetMatchForm();
+
+        matchMessage.textContent = "";
+
+    }
+);
+
+
+/* =================================
+   DELETE MATCH
+================================= */
+
+async function deleteMatch(id) {
+
+            const confirmDelete =
+                confirm(
+                    "Are you sure you want to delete this match?"
+                );
+
+            if (!confirmDelete) {
+                return;
+            }
+
+            const { error } =
+                await sccSupabase
+                    .from("matches")
+                    .delete()
+                    .eq("id", id);
+
+            if (error) {
+
+                alert(
+                    "Failed to delete match: " +
+                    error.message
+                );
+
+                console.error(error);
+
+                return;
+            }
+
+            alert("Match deleted successfully!");
+
+            closeSquadEditor();
+
+            loadMatches();
+        }
+
+
+        // ================================
+        // RESET MATCH FORM
+        // ================================
+
+        function resetMatchForm() {
+
+            matchForm.reset();
+
+            matchId.value = "";
+
+            formTitle.textContent =
+                "Add New Match";
+
+            cancelEditBtn.style.display =
+                "none";
+
+            matchStatus.value =
+                "Upcoming";
+        }
+
+
+        // ================================
+        // CANCEL EDIT
+        // ================================
+
+        cancelEditBtn.addEventListener(
+            "click",
+            function () {
+
+                resetMatchForm();
+
+                matchMessage.textContent = "";
+            }
+        );
+
+
+        // ================================
+        // OPEN SQUAD EDITOR
+        // ================================
+
+        async function openSquadEditor(id) {
+
+            currentSquadMatchId = id;
+
+            squadEditor.classList.add("active");
+
+            squadPlayerList.innerHTML =
+                "Loading players...";
+
+            squadMessage.textContent = "";
+
+
+            // Load match information
+
+            const {
+                data: match,
+                error: matchError
+            } =
+                await sccSupabase
+                    .from("matches")
+                    .select("*")
+                    .eq("id", id)
+                    .single();
+
+
+            if (matchError) {
+
+                squadPlayerList.innerHTML =
+                    "Unable to load match.";
+
+                console.error(matchError);
+
+                return;
+            }
+
+
+            squadMatchTitle.textContent =
+                "Squad — SCC vs " +
+                match.opponent;
+
+
+            // Load all players
+
+            const {
+                data: players,
+                error: playersError
+            } =
+                await sccSupabase
+                    .from("players")
+                    .select("*")
+                    .order("created_at", {
+                        ascending: true
+                    });
+
+
+            if (playersError) {
+
+                squadPlayerList.innerHTML =
+                    "Unable to load players.";
+
+                console.error(playersError);
+
+                return;
+            }
+
+
+            // Load existing squad
+
+            const {
+                data: existingSquad,
+                error: squadError
+            } =
+                await sccSupabase
+                    .from("match_squad")
+                    .select("*")
+                    .eq("match_id", id)
+                    .order("selection_order", {
+                        ascending: true
+                    });
+
+
+            if (squadError) {
+
+                squadPlayerList.innerHTML =
+                    "Unable to load squad.";
+
+                console.error(squadError);
+
+                return;
+            }
+
+
+            if (!players || players.length === 0) {
+
+                squadPlayerList.innerHTML = `
+                    <div>
+                        No players available.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            squadPlayerList.innerHTML = "";
+
+
+            players.forEach(player => {
+
+                const selected =
+                    existingSquad?.find(
+                        squad =>
+                            String(squad.player_id) ===
+                            String(player.id)
+                    );
+
+
+                const playerCard =
+                    document.createElement("div");
+
+                playerCard.className =
+                    "squad-player";
+
+
+                playerCard.innerHTML = `
+
+                    <div class="squad-player-top">
+
+                        <input
+                            type="checkbox"
+                            class="squad-checkbox"
+                            data-player-id="${player.id}"
+                            ${selected ? "checked" : ""}
+                        >
+
+                        <div>
+
+                            <div class="squad-player-name">
+                                ${escapeHTML(
+                                    player.full_name
+                                )}
+                            </div>
+
+                            <div class="squad-player-jersey">
+                                Jersey:
+                                ${escapeHTML(
+                                    player.jersey_number || "-"
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="squad-options">
+
+                        <select
+                            class="squad-role"
+                            data-player-id="${player.id}"
+                        >
+
+                            <option
+                                value="Player"
+                                ${
+                                    selected?.squad_role ===
+                                    "Player"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                Player
+                            </option>
+
+                            <option
+                                value="Impact Player"
+                                ${
+                                    selected?.squad_role ===
+                                    "Impact Player"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                Impact Player
+                            </option>
+
+                            <option
+                                value="Substitute"
+                                ${
+                                    selected?.squad_role ===
+                                    "Substitute"
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                Substitute
+                            </option>
+
+                        </select>
+
+
+                        <select
+                            class="squad-captain-role"
+                            data-player-id="${player.id}"
+                        >
+
+                            <option
+                                value="None"
+                                ${
+                                    !selected ||
+                                    (
+                                        !selected.is_captain &&
+                                        !selected.is_vice_captain
+                                    )
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                No Captain Role
+                            </option>
+
+                            <option
+                                value="Captain"
+                                ${
+                                    selected?.is_captain
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                Captain
+                            </option>
+
+                            <option
+                                value="Vice-Captain"
+                                ${
+                                    selected?.is_vice_captain
+                                        ? "selected"
+                                        : ""
+                                }
+                            >
+                                Vice-Captain
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                `;
+
+
+                squadPlayerList.appendChild(
+                    playerCard
+                );
+
+            });
+
+
+            squadEditor.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+
+        // ================================
+        // SAVE SQUAD
+        // ================================
+
+        async function saveSquad() {
+
+            if (!currentSquadMatchId) {
+
+                squadMessage.textContent =
+                    "Please select a match first.";
+
+                return;
+            }
+
+
+            squadMessage.textContent =
+                "Saving squad...";
+
+
+            const checkboxes =
+                document.querySelectorAll(
+                    ".squad-checkbox"
+                );
+
+
+            const selectedPlayers = [];
+
+
+            checkboxes.forEach(
+                (checkbox, index) => {
+
+                    if (!checkbox.checked) {
+                        return;
+                    }
+
+
+                    const playerId =
+                        checkbox.dataset.playerId;
+
+
+                    const roleSelect =
+                        document.querySelector(
+                            `.squad-role[data-player-id="${playerId}"]`
+                        );
+
+
+                    const captainSelect =
+                        document.querySelector(
+                            `.squad-captain-role[data-player-id="${playerId}"]`
+                        );
+
+
+                    const captainRole =
+                        captainSelect.value;
+
+
+                    selectedPlayers.push({
+
+                        match_id:
+                            currentSquadMatchId,
+
+                        player_id:
+                            Number(playerId),
+
+                        squad_role:
+                            roleSelect.value,
+
+                        is_captain:
+                            captainRole ===
+                            "Captain",
+
+                        is_vice_captain:
+                            captainRole ===
+                            "Vice-Captain",
+
+                        selection_order:
+                            index + 1
+
+                    });
+
+                }
+            );
+
+
+            // Check captain count
+
+            const captainCount =
+                selectedPlayers.filter(
+                    player =>
+                        player.is_captain
+                ).length;
+
+
+            const viceCaptainCount =
+                selectedPlayers.filter(
+                    player =>
+                        player.is_vice_captain
+                ).length;
+
+
+            if (captainCount > 1) {
+
+                squadMessage.textContent =
+                    "Only one Captain can be selected.";
+
+                return;
+            }
+
+
+            if (viceCaptainCount > 1) {
+
+                squadMessage.textContent =
+                    "Only one Vice-Captain can be selected.";
+
+                return;
+            }
+
+
+            // Remove old squad
+
+            const { error: deleteError } =
+                await sccSupabase
+                    .from("match_squad")
+                    .delete()
+                    .eq(
+                        "match_id",
+                        currentSquadMatchId
+                    );
+
+
+            if (deleteError) {
+
+                squadMessage.textContent =
+                    "Failed to update squad: " +
+                    deleteError.message;
+
+                console.error(deleteError);
+
+                return;
+            }
+
+
+            // Insert new squad
+
+            if (selectedPlayers.length > 0) {
+
+                const { error: insertError } =
+                    await sccSupabase
+                        .from("match_squad")
+                        .insert(
+                            selectedPlayers
+                        );
+
+
+                if (insertError) {
+
+                    squadMessage.textContent =
+                        "Failed to save squad: " +
+                        insertError.message;
+
+                    console.error(insertError);
+
+                    return;
+                }
+
+            }
+
+
+            squadMessage.textContent =
+                "Squad saved successfully!";
+
+
+            setTimeout(() => {
+
+                squadMessage.textContent = "";
+
+            }, 2500);
+
+        }
+
+
+        // ================================
+        // CLOSE SQUAD EDITOR
+        // ================================
+
+        function closeSquadEditor() {
+
+            squadEditor.classList.remove(
+                "active"
+            );
+
+            currentSquadMatchId = null;
+
+            squadPlayerList.innerHTML =
+                "";
+
+            squadMessage.textContent =
+                "";
+
+        }
+
+
+        // ================================
+        // LOGOUT
+        // ================================
+
+        logoutBtn.addEventListener(
+            "click",
+            async function () {
+
+                await sccSupabase.auth.signOut();
+
+                window.location.href =
+                    "admin.html";
+
+            }
+        );
+
+
+        // ================================
+        // ESCAPE HTML
+        // ================================
+
+        function escapeHTML(value) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent =
+                value ?? "";
+
+            return div.innerHTML;
+
+        }
+
+
+        // ================================
+        // INITIALIZE ADMIN PAGE
+        // ================================
+
+        async function initializePage() {
+
+            await checkAdmin();
+
+            const {
+                data: {
+                    user
+                }
+            } =
+                await sccSupabase.auth.getUser();
+
+
+            if (!user) {
+                return;
+            }
+
+
+            loadMatches();
+
+        }
+
+
+        initializePage();
+
+    </script>
+
+</body>
+
+</html>

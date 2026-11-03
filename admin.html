@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SCC Admin Login</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <a href="index.html" class="logo">SCC</a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="players.html">Players</a>
+            <a href="matches.html">Matches</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+    </header>
+
+
+    <main class="admin-page">
+
+        <div class="admin-login">
+
+            <p class="section-tag">SULTANPUR CRICKET CLUB</p>
+
+            <h1>ADMIN LOGIN</h1>
+
+            <p>Authorized access only.</p>
+
+            <form id="loginForm">
+
+                <label for="email">EMAIL</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Admin email"
+                    required
+                >
+
+                <label for="password">PASSWORD</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Password"
+                    required
+                >
+
+                <button type="submit">
+                    LOGIN
+                </button>
+
+                <p id="loginMessage"></p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <footer>
+
+        <h2>SULTANPUR CRICKET CLUB</h2>
+
+        <p>Born in 2026 • Sultanpur, Howrah</p>
+
+        <p class="copyright">
+            © 2026 Sultanpur Cricket Club. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="supabase.js"></script>
+
+
+    <script>
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const loginMessage =
+            document.getElementById("loginMessage");
+
+
+        loginForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("email").value;
+
+            const password =
+                document.getElementById("password").value;
+
+
+            loginMessage.textContent = "Logging in...";
+
+
+            const { data, error } =
+                await sccSupabase.auth.signInWithPassword({
+
+                    email: email,
+                    password: password
+
+                });
+
+
+            if (error) {
+
+                loginMessage.textContent =
+                    "Login failed. Please check your email and password.";
+
+                loginMessage.style.color = "#ff5c5c";
+
+                return;
+            }
+
+
+            loginMessage.textContent =
+                "Login successful!";
+
+            loginMessage.style.color = "#00d9ff";
+
+
+            window.location.href = "applications.html";
+
+        });
+
+    </script>
+
+</body>
+
+</html>

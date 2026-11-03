@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Players | Sultanpur Cricket Club</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <a href="index.html" class="logo">
+            SCC
+        </a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="players.html">Players</a>
+            <a href="matches.html">Matches</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        <!-- PLAYERS SECTION -->
+
+        <section class="players-page">
+
+            <p class="section-tag">
+                SULTANPUR CRICKET CLUB
+            </p>
+
+            <h1>
+                OUR SQUAD
+            </h1>
+
+            <p class="squad-intro">
+                Meet the players representing Sultanpur Cricket Club
+                with passion, discipline and determination.
+            </p>
+
+
+            <!-- PLAYERS WILL LOAD FROM SUPABASE -->
+
+            <div class="player-grid" id="playerGrid">
+
+                <p id="loadingMessage">
+                    Loading squad...
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <h2>
+            SULTANPUR CRICKET CLUB
+        </h2>
+
+        <p>
+            Born in 2026 • Sultanpur, Howrah
+        </p>
+
+        <p class="copyright">
+            © 2026 Sultanpur Cricket Club. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+    <!-- SUPABASE -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="supabase.js"></script>
+
+
+    <script>
+
+        const playerGrid =
+            document.getElementById("playerGrid");
+
+
+        async function loadPublicPlayers() {
+
+            const { data, error } = await sccSupabase
+                .from("players")
+                .select("*")
+                .order("created_at", { ascending: true });
+
+
+            if (error) {
+
+                console.error(error);
+
+                playerGrid.innerHTML = `
+                    <p>
+                        Unable to load squad right now.
+                    </p>
+                `;
+
+                return;
+            }
+
+
+            if (!data || data.length === 0) {
+
+                playerGrid.innerHTML = `
+                    <p>
+                        No players have been added yet.
+                    </p>
+                `;
+
+                return;
+            }
+
+
+            playerGrid.innerHTML = "";
+
+
+            data.forEach(player => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "player-card";
+
+
+                // Jersey number
+
+                const number =
+                    document.createElement("div");
+
+                number.className = "player-number";
+
+                number.textContent =
+                    player.jersey_number || "--";
+
+
+                // Label
+
+                const label =
+                    document.createElement("p");
+
+                label.className = "player-label";
+
+                if (player.jersey_number === "30") {
+
+                    label.textContent =
+                        "CAPTAIN";
+
+                } else {
+
+                    label.textContent =
+                        "PLAYER";
+
+                }
+
+
+                // Name
+
+                const name =
+                    document.createElement("h2");
+
+                name.textContent =
+                    player.full_name || "Unnamed Player";
+
+
+                // Roles
+
+                const roles =
+                    document.createElement("div");
+
+                roles.className =
+                    "player-roles";
+
+
+                if (player.playing_role) {
+
+                    const role =
+                        document.createElement("span");
+
+                    role.textContent =
+                        player.playing_role.toUpperCase();
+
+                    roles.appendChild(role);
+
+                }
+
+
+                // Founder / Management
+
+                if (player.jersey_number === "30") {
+
+                    const management =
+                        document.createElement("p");
+
+                    management.className =
+                        "management";
+
+                    management.textContent =
+                        "FOUNDER & MANAGEMENT HEAD";
+
+                    card.appendChild(number);
+                    card.appendChild(label);
+                    card.appendChild(name);
+                    card.appendChild(roles);
+                    card.appendChild(management);
+
+                } else {
+
+                    card.appendChild(number);
+                    card.appendChild(label);
+                    card.appendChild(name);
+                    card.appendChild(roles);
+
+                }
+
+
+                playerGrid.appendChild(card);
+
+            });
+
+        }
+
+
+        loadPublicPlayers();
+
+    </script>
+
+</body>
+
+</html>
