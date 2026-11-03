@@ -17,6 +17,7 @@
     <header class="navbar">
 
         <a href="index.html" class="logo">
+            SCC
         </a>
 
         <nav>
@@ -258,6 +259,16 @@
         </p>
 
     </footer>
+    <script>
+document.querySelectorAll(".navbar nav a").forEach(link => {
+    const linkPage = new URL(link.href).pathname;
+    const currentPage = window.location.pathname;
+
+    if (linkPage === currentPage) {
+        link.classList.add("active");
+    }
+});
+</script>
 
 </body>
 
